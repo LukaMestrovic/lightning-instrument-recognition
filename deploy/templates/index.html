@@ -34,7 +34,22 @@
                             <div>
                                 <h3 class="mb-5" style="color: antiquewhite;">Instruments appearing in a given audio file are: {{ predictions }}</h3>
                             </div>
-                        {% endif %}                       
+                        {% endif %}   
+                        {% if err_wav %}
+                        <div>
+                            <h3 class="mb-5" style="color: antiquewhite;">{{err_wav}}</h3>
+                        </div>
+                        {% endif %} 
+                        {% if err_empty %}
+                            <div>
+                                <h3 class="mb-5" style="color: antiquewhite;">{{err_empty}}</h3>
+                            </div>
+                        {% endif %} 
+                        {% if err_pred %}
+                            <div>
+                                <h3 class="mb-5" style="color: antiquewhite;">{{err_pred}}</h3>
+                            </div>
+                        {% endif %}                    
                     </div>
                 </div>
             </div>

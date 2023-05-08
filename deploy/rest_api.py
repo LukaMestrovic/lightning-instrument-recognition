@@ -5,7 +5,7 @@ Created on Thu Apr 27 09:25:06 2023
 @author: Francek
 """
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import hydra
 from hydra import compose, initialize
 
@@ -85,9 +85,11 @@ def predict():
     audio_file = request.files['audiofile']
 
     if audio_file is None or audio_file.filename == "":
-        return jsonify({'error': 'no file'})
+        error = 'You have to choose a file to make a prediction.'
+        return render_template('index.html', err_empty = error)
     if not allowed_file(audio_file.filename):
-        return jsonify({'error': 'format not supported'})
+        error = 'This file format is not supported. Please choose a .wav file.'
+        return render_template('index.html', err_wav = error)
     
     try:
         audio_grams = extract_from_file(audio_file, api = True)
@@ -102,7 +104,8 @@ def predict():
                 final_instruments.append(predictions_map[i])
 
     except:
-        return jsonify({'error': 'error during prediction'})
+        error = 'There was an error while predicting, please try again in a few minutes.'
+        return render_template('index.html', err_pred = error)
     
     return render_template('index.html', predictions = final_instruments)
 
@@ -137,4 +140,4 @@ def predict_test():
         return jsonify({'error': 'error during prediction'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5050, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
