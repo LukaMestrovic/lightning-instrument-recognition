@@ -2,7 +2,7 @@ constants:
   num_classes: 11
 
 preprocessing:
-  version: ["test"]
+  version: ["train", "test"]
   mono: True
   sample_rate: 22050
   step_perc: 1.0
@@ -33,7 +33,7 @@ fusion:
   theta_max: 1.01
   method: 1
   optimization_metric: "acc"
-  version: ["mel"]
+  version: ["mel", "modgd", "pitch"]
 
 paths:
   train_folder: "../../data/raw/IRMAS_Training_Data/"

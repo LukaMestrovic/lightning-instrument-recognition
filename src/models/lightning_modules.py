@@ -1,4 +1,3 @@
-from typing import Any
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
@@ -99,11 +98,11 @@ class CNN_mel(L.LightningModule):
         return x
     
     def training_step(self, batch, batch_idx):
-        inputs, labels = batch
-        outputs = self.forward(inputs)
+        x, y = batch
+        y_hat = self.forward(x)
         criterion = nn.CrossEntropyLoss()
-        loss = criterion(outputs, labels)
-        self.train_acc.update(outputs, labels)
+        loss = criterion(y_hat, y)
+        self.train_acc.update(y_hat, y)
         self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return {'loss': loss, 'log': self.log}
     
@@ -117,11 +116,11 @@ class CNN_mel(L.LightningModule):
         return optimizer
     
     def validation_step(self, batch, batch_idx):
-        inputs, labels = batch
-        outputs = self.forward(inputs)
+        x, y = batch
+        y_hat = self.forward(x)
         criterion = nn.CrossEntropyLoss()
-        loss = criterion(outputs, labels)
-        self.val_acc.update(outputs, labels)
+        loss = criterion(y_hat, y)
+        self.val_acc.update(y_hat, y)
         self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return {'val_loss': loss, 'log': self.log}
     
@@ -133,18 +132,16 @@ class CNN_mel(L.LightningModule):
     def predict_step(self, batch, batch_idx):
         key, val = batch
         val = val.squeeze(dim=0)
-        val = val.view(val.size(0), 1, val.size(1), val.size(2))
         predictions = []
         for i in range(val.size(0)):
             x = val[i]
-            prediction = self.forward(x)
+            y_hat = self.forward(x)
             soft = nn.Softmax(dim=1)
-            prediction = soft(prediction)
-            predictions.append(prediction)
+            y_hat = soft(y_hat)
+            predictions.append(y_hat)
         predictions = torch.stack(predictions)
         predictions = predictions.squeeze(dim=1)
 
-        # Aggregation
         if self.aggregation_method == "s1":
             predictions = torch.mean(predictions, axis = 0)
         elif self.aggregation_method == "s2":
@@ -235,11 +232,11 @@ class CNN_modgd(L.LightningModule):
         return x
     
     def training_step(self, batch, batch_idx):
-        inputs, labels = batch
-        outputs = self.forward(inputs)
+        x, y = batch
+        y_hat = self.forward(x)
         criterion = nn.CrossEntropyLoss()
-        loss = criterion(outputs, labels)
-        self.train_acc.update(outputs, labels)
+        loss = criterion(y_hat, y)
+        self.train_acc.update(y_hat, y)
         self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return {'loss': loss, 'log': self.log}
     
@@ -253,11 +250,11 @@ class CNN_modgd(L.LightningModule):
         return optimizer
     
     def validation_step(self, batch, batch_idx):
-        inputs, labels = batch
-        outputs = self.forward(inputs)
+        x, y = batch
+        y_hat = self.forward(x)
         criterion = nn.CrossEntropyLoss()
-        loss = criterion(outputs, labels)
-        self.val_acc.update(outputs, labels)
+        loss = criterion(y_hat, y)
+        self.val_acc.update(y_hat, y)
         self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return {'val_loss': loss, 'log': self.log}
     
@@ -269,18 +266,16 @@ class CNN_modgd(L.LightningModule):
     def predict_step(self, batch, batch_idx):
         key, val = batch
         val = val.squeeze(dim=0)
-        val = val.view(val.size(0), 1, val.size(1), val.size(2))
         predictions = []
         for i in range(val.size(0)):
             x = val[i]
-            prediction = self.forward(x)
+            y_hat = self.forward(x)
             soft = nn.Softmax(dim=1)
-            prediction = soft(prediction)
-            predictions.append(prediction)
+            y_hat = soft(y_hat)
+            predictions.append(y_hat)
         predictions = torch.stack(predictions)
         predictions = predictions.squeeze(dim=1)
 
-        # Aggregation
         if self.aggregation_method == "s1":
             predictions = torch.mean(predictions, axis = 0)
         elif self.aggregation_method == "s2":
@@ -359,11 +354,11 @@ class CNN_pitch(L.LightningModule):
         return x
     
     def training_step(self, batch, batch_idx):
-        inputs, labels = batch
-        outputs = self.forward(inputs)
+        x, y = batch
+        y_hat = self.forward(x)
         criterion = nn.CrossEntropyLoss()
-        loss = criterion(outputs, labels)
-        self.train_acc.update(outputs, labels)
+        loss = criterion(y_hat, y)
+        self.train_acc.update(y_hat, y)
         self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return {'loss': loss, 'log': self.log}
     
@@ -377,11 +372,11 @@ class CNN_pitch(L.LightningModule):
         return optimizer
     
     def validation_step(self, batch, batch_idx):
-        inputs, labels = batch
-        outputs = self.forward(inputs)
+        x, y = batch
+        y_hat = self.forward(x)
         criterion = nn.CrossEntropyLoss()
-        loss = criterion(outputs, labels)
-        self.val_acc.update(outputs, labels)
+        loss = criterion(y_hat, y)
+        self.val_acc.update(y_hat, y)
         self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return {'val_loss': loss, 'log': self.log}
     
@@ -393,18 +388,16 @@ class CNN_pitch(L.LightningModule):
     def predict_step(self, batch, batch_idx):
         key, val = batch
         val = val.squeeze(dim=0)
-        val = val.view(val.size(0), 1, val.size(1), val.size(2))
         predictions = []
         for i in range(val.size(0)):
             x = val[i]
-            prediction = self.forward(x)
+            y_hat = self.forward(x)
             soft = nn.Softmax(dim=1)
-            prediction = soft(prediction)
+            prediction = soft(y_hat)
             predictions.append(prediction)
         predictions = torch.stack(predictions)
         predictions = predictions.squeeze(dim=1)
 
-        # Aggregation
         if self.aggregation_method == "s1":
             predictions = torch.mean(predictions, axis = 0)
         elif self.aggregation_method == "s2":

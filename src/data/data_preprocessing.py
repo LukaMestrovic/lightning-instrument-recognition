@@ -1,7 +1,4 @@
-import hydra
 from hydra import compose, initialize
-from omegaconf import OmegaConf
-
 import numpy as np
 import pickle
 import librosa
@@ -10,11 +7,6 @@ import scipy.signal
 from sklearn.model_selection import train_test_split
 from collections import OrderedDict
 import torch
-
-#device config
-print(torch.cuda.is_available())
-print(torch.__version__)
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # global initialization
 initialize(version_base=None, config_path="../../configs")
@@ -60,7 +52,6 @@ def create_melspectrogram(x, sr, n_fft, hop_length):
 
 def create_modgdgram(signal, sr, n_frequency_bins=128, frame_size=0.05, hop_size=0.01, alpha=0.9, gamma=0.5, nc=10):
     
-    #convert to samples
     frame_length = int(frame_size * sr)
     hop_length = int(hop_size * sr)
     
@@ -109,7 +100,6 @@ def create_pitchgram(x, sr, hop_length):
 
 def extract_from_file(filename, instrument = "pol", api = False):
 
-    # Read the data
     y, sr = librosa.load(filename, sr=sample_rate, mono=mono)
     dur = int(len(y) / sr)
     

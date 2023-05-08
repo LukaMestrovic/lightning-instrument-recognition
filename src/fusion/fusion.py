@@ -1,4 +1,3 @@
-import hydra
 from hydra import compose, initialize
 import numpy as np
 import torch
@@ -8,7 +7,6 @@ import lightning.pytorch as L
 import pickle
 import sys
 import os
-from torchmetrics.classification import MultilabelAccuracy, F1Score
 sys.path.append("../")
 from models.lightning_modules import CNN_mel, CNN_modgd, CNN_pitch, ListDataset
 
@@ -44,6 +42,7 @@ def calculate_f1(y1, y2):
 # constants
 lr = cfg.training.learning_rate
 num_classes = cfg.constants.num_classes
+num_workers = os.cpu_count()
 
 # paths
 models_dir = cfg.paths.models_folder
@@ -70,15 +69,15 @@ for root, dirs, files in os.walk(models_dir):
     for file in files:
         if (file == 'cnn_mel.ckpt'):
             print('success')
-            model = CNN_mel.load_from_checkpoint(os.path.join(models_dir, file), lr=lr, num_labels=num_classes)
+            model = CNN_mel.load_from_checkpoint(os.path.join(models_dir, file), lr=lr, num_labels=num_classes, map_location=device)
             model_names.append(file)
             models.append(model)
         elif (file == 'cnn_modgd.ckpt'):
-            model = CNN_modgd.load_from_checkpoint(os.path.join(models_dir, file), lr=lr, num_labels=num_classes)
+            model = CNN_modgd.load_from_checkpoint(os.path.join(models_dir, file), lr=lr, num_labels=num_classes, map_location=device)
             model_names.append(file)
             models.append(model)
         elif (file == 'cnn_pitch.ckpt'):
-            model = CNN_pitch.load_from_checkpoint(os.path.join(models_dir, file), lr=lr, num_labels=num_classes)
+            model = CNN_pitch.load_from_checkpoint(os.path.join(models_dir, file), lr=lr, num_labels=num_classes, map_location=device)
             model_names.append(file)
             models.append(model)
 num_models = len(models)
@@ -121,7 +120,7 @@ for i in range(num_models):
     keys = list(X_test[i].keys())
     vals = list(X_test[i].values())
     dataset = ListDataset(keys, vals)
-    predict_loader = DataLoader(dataset, batch_size=1, num_workers=8, shuffle=False)
+    predict_loader = DataLoader(dataset, batch_size=1, num_workers=num_workers, shuffle=False)
 
     model = models[i]
     trainer = L.Trainer()
@@ -130,31 +129,7 @@ for i in range(num_models):
     model_predictions = model.model_predictions
     model_predictions = torch.stack(model_predictions)
     probabilities.append(model_predictions)
-    '''
-    for (key, val) in X_test[i].items():
 
-        print(i, ":", key, "/", len(X_test[i]))
-        
-        # Model prediction
-        val = val.to(device)
-        
-        prediction = model(val)
-        soft = nn.Softmax(dim=1)
-        prediction = soft(prediction)
-
-        # Aggregation
-        if aggregation_method == "s1":
-            prediction = torch.mean(prediction, axis = 0)
-        elif aggregation_method == "s2":
-            prediction = torch.sum(prediction, axis = 0)
-            m = torch.max(prediction)
-            prediction /= m
-            
-        tmp_probs.append(prediction.detach().cpu().numpy())
-        
-    tmp_probs = np.array(tmp_probs)
-    probabilities.append(tmp_probs)
-    '''
 probabilities = torch.stack(probabilities)
 probabilities = probabilities.detach().cpu().numpy()
 
@@ -295,5 +270,4 @@ for model_name in version:
     save_str += "_"
 save_str += optimization_metric
 save_str += ".npy"
-#np.save("fusion_thresholds.npy", fusion)
 np.save(save_str, fusion)

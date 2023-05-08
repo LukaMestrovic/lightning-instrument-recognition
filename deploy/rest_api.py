@@ -5,7 +5,7 @@ Created on Thu Apr 27 09:25:06 2023
 @author: Francek
 """
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import hydra
 from hydra import compose, initialize
 
@@ -46,9 +46,9 @@ predictions_map = {0: "cel", 1: "cla", 2: "flu", 3: "gac", 4: "gel", 5: "org",
 label_map = {"cel": 0, "cla": 1, "flu": 2, "gac": 3, "gel": 4, "org": 5, 
              "pia": 6, "sax": 7, "tru": 8, "vio": 9, "voi": 10}
 
-model_mel = CNN_mel.load_from_checkpoint('../models/cnn_mel.ckpt', lr=lr, num_labels=num_classes)
-model_modgd = CNN_modgd.load_from_checkpoint('../models/cnn_modgd.ckpt', lr=lr, num_labels=num_classes)
-model_pitch = CNN_pitch.load_from_checkpoint('../models/cnn_pitch.ckpt', lr=lr, num_labels=num_classes)
+model_mel = CNN_mel.load_from_checkpoint('../models/cnn_mel.ckpt', lr=lr, num_labels=num_classes, map_location=device)
+model_modgd = CNN_modgd.load_from_checkpoint('../models/cnn_modgd.ckpt', lr=lr, num_labels=num_classes, map_location=device)
+model_pitch = CNN_pitch.load_from_checkpoint('../models/cnn_pitch.ckpt', lr=lr, num_labels=num_classes, map_location=device)
 
 def predict_instrument(audio_grams, type):
     val = audio_grams.to(device)
