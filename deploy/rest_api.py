@@ -33,11 +33,11 @@ predictions_map = {0: "cel", 1: "cla", 2: "flu", 3: "gac", 4: "gel", 5: "org",
 label_map = {"cel": 0, "cla": 1, "flu": 2, "gac": 3, "gel": 4, "org": 5, 
              "pia": 6, "sax": 7, "tru": 8, "vio": 9, "voi": 10}
 
-model_mel = torch.jit.load('../models/cnn_mel.pt')
+model_mel = torch.jit.load('../models/cnn_mel.pt', map_location=torch.device('cpu'))
 model_mel = model_mel.to(device)
-model_modgd = torch.jit.load('../models/cnn_modgd.pt')
+model_modgd = torch.jit.load('../models/cnn_modgd.pt', map_location=torch.device('cpu'))
 model_modgd = model_modgd.to(device)
-model_pitch = torch.jit.load('../models/cnn_pitch.pt')
+model_pitch = torch.jit.load('../models/cnn_pitch.pt', map_location=torch.device('cpu'))
 model_pitch = model_pitch.to(device)
 
 def predict_instrument(audio_grams, type):
@@ -130,4 +130,4 @@ def predict_test():
         return jsonify({'error': 'error during prediction'})
 
 if __name__ == '__main__':
-    app.run(port=5050, debug=True)
+    app.run(host="0.0.0.0", port=5050, debug=True)
