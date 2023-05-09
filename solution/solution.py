@@ -14,8 +14,9 @@ files = [file[:-4] for file in os.listdir(test_folder) if file.endswith('.wav')]
 sorted_files = sorted(files, key=lambda x: int(x.split('_')[1]))
 
 file_dict = {}
-for file in os.listdir(test_folder):
+for file in sorted_files:
     file_path = os.path.join(test_folder, file)
+    file_path = file_path + '.wav'
     if os.path.isfile(file_path):
         with open(file_path, 'rb') as f:
             audio_file = f.read()
